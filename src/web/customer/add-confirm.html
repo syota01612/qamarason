@@ -1,19 +1,90 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>案件情報入力</title>
+    <title>確認画面</title>
     <!-- Bootstrap CSSの読み込み -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
-        <!-- ここにHTMLを書く -->
+        <h2 class="mb-4">確認画面</h2>
+        <div id="confirmation-content"></div>
+        <div class="mt-3">
+            <button type="button" class="btn btn-success" id="yes">YES</button>
+            <button type="button" class="btn btn-danger ml-2" id="no">NO</button>
+        </div>
     </div>
+
     <script type="module">
-        <!-- ここにJSを書く -->
+        import config from '../config.js';
+        // Function to parse the query string and extract values
+        function getQueryStringValue(key) {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            return urlParams.get(key);
+        }
+
+        // Retrieve form data from the query string
+        const companyName = getQueryStringValue('companyName');
+        const industry = getQueryStringValue('industry');
+        const contact = getQueryStringValue('contact');
+        const location = getQueryStringValue('location');
+
+        // Display the form data in the confirmation content
+        const confirmationContent = document.getElementById('confirmation-content');
+        confirmationContent.innerHTML = `
+            <p><strong>会社名:</strong> ${companyName}</p>
+            <p><strong>業種:</strong> ${industry}</p>
+            <p><strong>連絡先:</strong> ${contact}</p>
+            <p><strong>所在地:</strong> ${location}</p>
+        `;
+
+        // Event listeners for YES/NO buttons
+        document.getElementById('yes').addEventListener('click', function() {
+            handleConfirmation('yes');
+        });
+
+        document.getElementById('no').addEventListener('click', function() {
+            handleConfirmation('no');
+        });
+
+        // Function to handle YES/NO button clicks
+        function handleConfirmation(choice) {
+            // const apiUrl = config.apiUrl + '/add-customer'; // Replace with your actual server endpoint
+
+            if (choice === 'yes') {
+                const formData = new FormData();
+                formData.append('companyName', companyName);
+                formData.append('industry', industry);
+                formData.append('contact', contact);
+                formData.append('location', location);
+
+                fetch(config.apiUrl + '/add-customer', {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams([...formData])
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('顧客情報が正常に保存されました');
+                    } else {
+                        alert('保存に失敗しました。');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            } else if (choice === 'no') {
+                // Redirect back to add.html
+                window.location.href = 'add.html';
+            }
+        }
     </script>
+
     <!-- BootstrapのJavaScriptの読み込み -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>

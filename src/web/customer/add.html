@@ -10,7 +10,8 @@
 <body>
     <div class="container mt-5">
         <h2 class="mb-4">顧客情報を入力してください</h2>
-        <form id="customer-form">
+        <!-- actionを追加-->
+        <form id="customer-form" action="">
             <div class="form-group">
                 <label for="companyName">会社名:</label>
                 <input type="text" class="form-control" id="companyName" name="companyName" required>
@@ -31,7 +32,7 @@
         </form>
     </div>
 
-    <script type="module">
+    <!-- <script type="module">
         import config from '../config.js';
 
         document.getElementById('customer-form').addEventListener('submit', function(e) {
@@ -55,9 +56,18 @@
               })
               .catch(error => console.error('Error:', error));
         });
-    </script> 
+    </script>  -->
 
-    
+<script type="module">
+    document.getElementById('customer-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const queryString = new URLSearchParams([...formData]).toString();
+
+        window.location.href = 'add-confirm.html?' + queryString;
+    });
+</script> 
+
     <!-- BootstrapのJavaScriptの読み込み -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>

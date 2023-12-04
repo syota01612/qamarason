@@ -1,0 +1,101 @@
+<!-- detail.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Detail</title>
+    <!-- Bootstrap CSSの読み込み -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Customer Detail</h1>
+        <div id="customer-detail">
+            <!-- 顧客の詳細データはここに挿入されます -->
+        </div>
+
+        <!-- ボタンを追加 -->
+        <button id="deleteButton" class="btn btn-danger">削除</button>
+
+        <a href="list.html">戻る</a>
+    </div>
+
+    <script type="module">
+        // ExpressサーバのAPIエンドポイントのURL
+        import config from "../config.js";
+    
+        // Retrieve the query parameter from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const customerId = urlParams.get('customer_id'); // Change 'companyName' to 'customer_id'
+    
+        // Declare detailContainer outside the fetch block
+        const detailContainer = document.getElementById("customer-detail");
+    
+        if (customerId) {
+            // Fetch specific company information based on the customerId
+            fetch(`${config.apiUrl}/customer-detail?customer_id=${customerId}`) // Change 'companyName' to 'customer_id'
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.length > 0) {
+                        // Display the company information
+                        const companyInfo = `
+                            <p><strong>会社名:</strong> ${data[0].company_name}</p>
+                            <p><strong>業種:</strong> ${data[0].industry}</p>
+                            <p><strong>連絡先:</strong> ${data[0].contact}</p>
+                            <p><strong>所在地:</strong> ${data[0].location}</p>
+                        `;
+                        detailContainer.innerHTML = companyInfo;
+
+                        // ボタンがクリックされたときの処理
+                        const deleteButton = document.getElementById("deleteButton");
+                        deleteButton.addEventListener("click", async () => {
+                            if (confirm("削除していいですか？")) {
+                                try {
+                                    const deleteResponse = await fetch(`${config.apiUrl}/customer-delete?customer_id=${customerId}`, {
+                                        method: "DELETE"
+                                    });
+
+                                    if (deleteResponse.ok) {
+                                        alert("データを削除し、顧客一覧画面に戻ります。");
+                                        window.location.href = "list.html";
+                                    } else {
+                                        const errorData = await deleteResponse.json();
+                                        throw new Error(`削除エラー: ${errorData.error}`);
+                                    }
+                                } catch (error) {
+                                    console.error(error);
+                                    alert("削除エラーが発生しました。");
+                                }
+                            } else {
+                                alert("削除をキャンセルしました。");
+                            }
+                        });
+                    } else {
+                        console.error('Company not found');
+                        detailContainer.innerHTML = '<p>Company not found</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    detailContainer.innerHTML = '<p>Error fetching data</p>';
+                });
+        } else {
+            console.error('Customer ID not provided in the URL.'); // Change 'Company name' to 'Customer ID'
+        }
+
+        // ... 既存のコード
+
+    </script>
+
+    <!-- BootstrapのJavaScriptと依存関係のリンク -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

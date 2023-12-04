@@ -3,7 +3,7 @@ const app = express();
 const port = 2760;
 
 app.use(express.urlencoded({ extended: true }));
-
+app.use(express.json()); // Added to parse JSON requests
 
 const cors = require("cors");
 app.use(cors());
@@ -31,8 +31,61 @@ app.get("/customers", async (req, res) => {
   }
 });
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+// DetailのGETエンドポイント
+// DetailのGETエンドポイント
+app.get("/customer-detail", async (req, res) => {
+  try {
+    const customerId = req.query.customer_id; // クエリパラメータとして customer_id を取得
+
+    if (!customerId) {
+      return res.status(400).json({ error: "Customer ID is required" });
+    }
+
+    const customerData = await pool.query(
+      "SELECT * FROM customers WHERE customer_id = $1",
+      [customerId]
+    );
+
+    if (customerData.rows.length > 0) {
+      res.json(customerData.rows);
+    } else {
+      res.status(404).json({ error: "Customer not found" });
+    }
+  } catch (err) {
+    console.error(err); // Log the error details
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+// DetailのDELETEエンドポイント
+app.delete("/customer-delete", async (req, res) => {
+  try {
+    const customerId = req.query.customer_id;
+
+    if (!customerId) {
+      return res.status(400).json({ error: "Customer ID is required" });
+    }
+
+    const deleteResult = await pool.query(
+      "DELETE FROM customers WHERE customer_id = $1 RETURNING *",
+      [customerId]
+    );
+
+    if (deleteResult.rows.length > 0) {
+      res.json({ success: true, deletedCustomer: deleteResult.rows[0] });
+    } else {
+      res.status(404).json({ error: "Customer not found" });
+    }
+  } catch (err) {
+    console.error(err); // Log the error details
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ... 既存のコード
+
+
 
 app.post("/add-customer", async (req, res) => {
   try {

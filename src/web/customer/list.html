@@ -1,3 +1,4 @@
+<!-- list.html -->
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -15,21 +16,19 @@
           <tr>
             <th scope="col">#</th>
             <th scope="col">会社名</th>
-            <th scope="col">業種</th>
-            <th scope="col">連絡先</th>
-            <th scope="col">所在地</th>
           </tr>
         </thead>
         <tbody id="customer-list">
           <!-- 顧客データはここに挿入されます -->
         </tbody>
       </table>
+      <a href="../index.html">こちらをクリック</a>
     </div>
 
     <script type="module">
       // ExpressサーバのAPIエンドポイントのURL
       import config from "../config.js";
-
+    
       fetch(`${config.apiUrl}/customers`)
         .then((response) => {
           console.log(response); // ここでレスポンスオブジェクトをログに出力
@@ -42,27 +41,19 @@
             const row = list.insertRow();
             const cell1 = row.insertCell(0);
             const cell2 = row.insertCell(1);
-            const cell3 = row.insertCell(2);
-            const cell4 = row.insertCell(3);
-            const cell5 = row.insertCell(4);
-
+    
             cell1.textContent = index + 1;
-            cell2.textContent = customer.company_name;
-            cell3.textContent = customer.industry;
-            cell4.textContent = customer.contact;
-            cell5.textContent = customer.location;
-
+    
+            // Create a link for each company name with customer_id as a query parameter
+            const link = document.createElement("a");
+            link.href = `detail.html?customer_id=${customer.customer_id}`;
+            link.textContent = customer.company_name;
+            cell2.appendChild(link);
           });
         })
         .catch((error) => console.error(error));
-
-      var link = document.createElement('a');
-      link.href = 'http://localhost/index.html';
-      link.textContent ='こちらをクリック！！！！';
-      document.body.appendChild(link);
     </script>
-
-
+    
 
     <!-- BootstrapのJavaScriptと依存関係のリンク -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
