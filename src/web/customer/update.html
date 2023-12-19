@@ -1,22 +1,112 @@
+<!-- update.html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>案件情報入力</title>
+    <title>Edit Customer</title>
     <!-- Bootstrap CSSの読み込み -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
-        <!-- ここにHTMLを書く -->
+        <h1 class="mb-4">Edit Customer</h1>
+        <form id="editForm">
+            <div class="form-group">
+                <label for="companyName">会社名</label>
+                <input type="text" class="form-control" id="companyName" name="companyName" required>
+            </div>
+            <div class="form-group">
+                <label for="industry">業種</label>
+                <input type="text" class="form-control" id="industry" name="industry" required>
+            </div>
+            <div class="form-group">
+                <label for="contact">連絡先</label>
+                <input type="text" class="form-control" id="contact" name="contact" required>
+            </div>
+            <div class="form-group">
+                <label for="location">所在地</label>
+                <input type="text" class="form-control" id="location" name="location" required>
+            </div>
+            <button type="submit" class="btn btn-primary">更新</button>
+        </form>
+        <a href="list.html">戻る</a>
     </div>
+
     <script type="module">
-        <!-- ここにJSを書く -->
+        // ExpressサーバのAPIエンドポイントのURL
+        import config from "../config.js";
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const customerId = urlParams.get('customer_id');
+
+        const editForm = document.getElementById("editForm");
+
+        if (customerId) {
+            // Fetch specific company information based on the customerId
+            fetch(`${config.apiUrl}/customer-detail?customer_id=${customerId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const customer = data[0];
+                        // フォームにデータをセット
+                        document.getElementById("companyName").value = customer.company_name;
+                        document.getElementById("industry").value = customer.industry;
+                        document.getElementById("contact").value = customer.contact;
+                        document.getElementById("location").value = customer.location;
+                    } else {
+                        console.error('Company not found');
+                        alert('Company not found');
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert('Error fetching data');
+                });
+
+            editForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                // フォームのデータを取得
+                const formData = new FormData(editForm);
+
+                // 入力値のチェック
+                const isValid = validateFormData(formData);
+                if (!isValid) {
+                    return;
+                }
+
+                try {
+                    // customerId をセッションストレージに保存
+                    sessionStorage.setItem('customerId', customerId);
+
+                    // フォームのデータを一時的に保存
+                    sessionStorage.setItem('formData', JSON.stringify(Object.fromEntries(formData)));
+
+                    // 更新が成功した場合、update-confirm.htmlに遷移
+                    window.location.href = "update-confirm.html";
+                } catch (error) {
+                    console.error(error);
+                    alert("更新エラーが発生しました。");
+                }
+            });
+        } else {
+            console.error('Customer ID not provided in the URL.');
+            alert('Customer ID not provided in the URL.');
+        }
+
+        // フォームのデータバリデーション
+        function validateFormData(formData) {
+            // ここにバリデーションのロジックを実装
+            // 例: 空白チェック、文字列長の制限など
+            return true; // バリデーションが成功した場合はtrueを返す
+        }
     </script>
-    <!-- BootstrapのJavaScriptの読み込み -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+
+    <!-- BootstrapのJavaScriptと依存関係のリンク -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

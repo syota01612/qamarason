@@ -17,6 +17,7 @@
 
         <!-- ボタンを追加 -->
         <button id="deleteButton" class="btn btn-danger">削除</button>
+        <button id="editButton" class="btn btn-warning">編集</button>
 
         <a href="list.html">戻る</a>
     </div>
@@ -52,7 +53,7 @@
                         `;
                         detailContainer.innerHTML = companyInfo;
 
-                        // ボタンがクリックされたときの処理
+                        // 削除ボタンがクリックされたときの処理
                         const deleteButton = document.getElementById("deleteButton");
                         deleteButton.addEventListener("click", async () => {
                             if (confirm("削除していいですか？")) {
@@ -62,7 +63,7 @@
                                     });
 
                                     if (deleteResponse.ok) {
-                                        alert("データを削除し、顧客一覧画面に戻ります。");
+                                        alert("データを削除し、list.htmlに遷移します。");
                                         window.location.href = "list.html";
                                     } else {
                                         const errorData = await deleteResponse.json();
@@ -75,6 +76,13 @@
                             } else {
                                 alert("削除をキャンセルしました。");
                             }
+                        });
+
+                        // 編集ボタンがクリックされたときの処理
+                        const editButton = document.getElementById("editButton");
+                        editButton.addEventListener("click", () => {
+                            // 編集ボタンが押されたらupdate.htmlに遷移
+                            window.location.href = `update.html?customer_id=${customerId}`;
                         });
                     } else {
                         console.error('Company not found');

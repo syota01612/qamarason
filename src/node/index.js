@@ -101,4 +101,43 @@ app.post("/add-customer", async (req, res) => {
   }
 });
 
+
+// index.js
+
+// 既存のコード...
+
+// UpdateのPOSTエンドポイント
+app.post("/update-customer", async (req, res) => {
+  try {
+    const customerId = req.query.customer_id;
+
+    if (!customerId) {
+      return res.status(400).json({ error: "Customer ID is required" });
+    }
+
+    const { companyName, industry, contact, location } = req.body;
+
+    // ここにバリデーションのロジックを追加
+
+    // バリデーションが成功した場合、データベースを更新
+    const updateCustomer = await pool.query(
+      "UPDATE customers SET company_name = $1, industry = $2, contact = $3, location = $4 WHERE customer_id = $5 RETURNING *",
+      [companyName, industry, contact, location, customerId]
+  );
+  
+
+    if (updateCustomer.rows.length > 0) {
+      res.json({ success: true, customer: updateCustomer.rows[0] });
+    } else {
+      res.status(404).json({ error: "Customer not found" });
+    }
+  } catch (err) {
+    console.error(err); // ログにエラーの詳細を記録
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// 既存のコード...
+
+
 app.use(express.static("public"));

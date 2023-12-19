@@ -1,22 +1,87 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>案件情報入力</title>
-    <!-- Bootstrap CSSの読み込み -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="container mt-5">
-        <!-- ここにHTMLを書く -->
-    </div>
-    <script type="module">
-        <!-- ここにJSを書く -->
-    </script>
-    <!-- BootstrapのJavaScriptの読み込み -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-</body>
-</html>
+    <!-- update-confirm.html -->
+    <!DOCTYPE html>
+    <html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Update Confirmation</title>
+        <!-- Bootstrap CSSの読み込み -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    </head>
+    <body>
+        <div class="container mt-5">
+            <h1 class="mb-4">Update Confirmation</h1>
+            <div id="confirmationData">
+                <!-- 一時的に保存されたフォームのデータを表示するコンテナ -->
+            </div>
+            <button id="updateButton" class="btn btn-primary">更新</button>
+            <a href="list.html">戻る</a>
+        </div>
+
+        <script type="module">
+            // 一時的に保存されたフォームのデータを取得
+            import config from "../config.js";
+            // customerId をセッションストレージから取得
+            const customerId = sessionStorage.getItem('customerId');
+            if (!customerId) {
+        console.error('Customer ID not found in session storage.');
+        alert('Customer ID not found.');
+        // エラー処理など、customerId がない場合の対処を行う
+            }else{
+            const formData = JSON.parse(sessionStorage.getItem('formData'));
+
+            if (formData) {
+                // フォームのデータを表示
+                const confirmationContainer = document.getElementById("confirmationData");
+                confirmationContainer.innerHTML = `
+                    <p><strong>会社名:</strong> ${formData.companyName}</p>
+                    <p><strong>業種:</strong> ${formData.industry}</p>
+                    <p><strong>連絡先:</strong> ${formData.contact}</p>
+                    <p><strong>所在地:</strong> ${formData.location}</p>
+                `;
+
+                // 更新ボタンがクリックされたときの処理
+                const updateButton = document.getElementById("updateButton");
+                updateButton.addEventListener("click", async () => {
+                    try {
+                        // フォームデータをデータベースに更新
+                        const updateResponse = await fetch(`${config.apiUrl}/update-customer?customer_id=${customerId}`, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+});
+
+if (!updateResponse.ok) {
+    const errorText = await updateResponse.text();
+    console.error(`Update request failed: ${errorText}`);
+    alert("Update request failed. See console for details.");
+    return;
+}
+
+
+
+                        if (updateResponse.ok) {
+                            alert("データを更新しました。");
+                        } else {
+                            const errorData = await updateResponse.json();
+                            throw new Error(`更新エラー: ${errorData.error}`);
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        alert("更新エラーが発生しました。");
+                    }
+                });
+            } else {
+                console.error('Form data not found.');
+                alert('Form data not found.');
+            }}
+        </script>
+
+        <!-- BootstrapのJavaScriptと依存関係のリンク -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </body>
+    </html>
