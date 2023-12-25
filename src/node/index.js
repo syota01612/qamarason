@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const port = 2760;
 
+
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // Added to parse JSON requests
 
@@ -102,10 +104,6 @@ app.post("/add-customer", async (req, res) => {
 });
 
 
-// index.js
-
-// 既存のコード...
-
 // UpdateのPOSTエンドポイント
 app.post("/update-customer", async (req, res) => {
   try {
@@ -116,8 +114,6 @@ app.post("/update-customer", async (req, res) => {
     }
 
     const { companyName, industry, contact, location } = req.body;
-
-    // ここにバリデーションのロジックを追加
 
     // バリデーションが成功した場合、データベースを更新
     const updateCustomer = await pool.query(
@@ -136,8 +132,5 @@ app.post("/update-customer", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
-// 既存のコード...
-
 
 app.use(express.static("public"));
